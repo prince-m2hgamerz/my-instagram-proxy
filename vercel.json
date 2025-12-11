@@ -10,18 +10,14 @@
     }
   ],
   
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/index.html",
-      "permanent": true
-    }
-  ],
-  
   "rewrites": [
     {
       "source": "/api/download(.*)",
       "destination": "/api/download.ts" 
+    },
+    {
+      "source": "/",
+      "destination": "/index.html" 
     }
   ]
 }
