@@ -14,7 +14,7 @@ export type DownloadData = {
     thumbnail_url: string | null;
     thumbnail_base64: string | null;
     original_url: string;
-    metadata?: DeveloperMetadata; // Reference the new type
+    metadata?: DeveloperMetadata; // <--- ADD THIS LINE
 };
 
 export type DownloadResponse = {
@@ -22,3 +22,5 @@ export type DownloadResponse = {
     message?: string;
     data?: DownloadData;
 };
+
+// ... (Ensure any other existing types are kept below this)

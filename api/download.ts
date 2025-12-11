@@ -1,114 +1,114 @@
 // api/download.ts
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { DownloadResponse } from '../lib/types';
-import he from 'he'; // Assuming you use 'he' for HTML entity decoding
+import { getRandomUserAgent, DEVELOPER_METADATA } from '../lib/constants'; // <--- UPDATED IMPORT
+import { isValidInstagramUrl, decodeHtml, getCorsHeaders } from '../lib/utils';
+import { DownloadResponse } from '../lib/types';
 
-// --- IMPORTANT: HARDCODED METADATA ---
-// Set your desired values here. They will be included in every successful API response.
-const DEVELOPER_METADATA = {
-    author: "m2hgamerz",
-    telegram_channel: "@m2hwebsolution",
-    developer_domain: "https://m2hgamerz.com",
-    contact_number: "+91-7678289728"
+// Helper function to apply CORS headers (avoids repetition)
+const applyCorsHeaders = (res: VercelResponse) => {
+    Object.entries(getCorsHeaders()).forEach(([key, value]) => res.setHeader(key, value as string));
 };
-// ------------------------------------
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // 1. Set CORS and Cache Headers for the API
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3600');
-
+    // 1. Handle CORS Preflight
     if (req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-        return res.status(200).end();
+        applyCorsHeaders(res); 
+        res.status(200).end();
+        return;
     }
-    
-    // 2. Extract URL from query parameters
-    const url = req.query.url as string | undefined;
 
-    if (!url) {
-        const errorResponse: DownloadResponse = {
-            status: 'error',
-            message: 'Missing "url" query parameter. Example: /api/download?url=https://www.instagram.com/reel/...'
-        };
-        return res.status(400).json(errorResponse);
+    // 2. Validate Method
+    if (req.method !== 'GET') {
+        res.setHeader('Allow', 'GET, OPTIONS');
+        // Apply CORS before sending 405 response
+        applyCorsHeaders(res);
+        return res.status(405).json({ status: 'error', message: 'Method Not Allowed' });
     }
-    
-    if (!url.includes('instagram.com')) {
-        const errorResponse: DownloadResponse = {
+
+    const { url } = req.query;
+
+    // 3. Validate Input
+    if (!url || typeof url !== 'string' || !isValidInstagramUrl(url)) {
+        applyCorsHeaders(res); 
+        return res.status(400).json({
             status: 'error',
-            message: 'Invalid URL. Only Instagram URLs are supported.'
-        };
-        return res.status(400).json(errorResponse);
+            message: 'Invalid or missing Instagram URL',
+        });
     }
 
     try {
-        // 3. Fetch the Instagram page HTML
-        const response = await fetch(url);
-        
+        // 4. Prepare Upstream Request
+        const encodedUrl = encodeURIComponent(url);
+        // Assuming this is your external provider URL
+        const targetUrl = `https://snapdownloader.com/tools/instagram-reels-downloader/download?url=${encodedUrl}`; 
+
+        // 5. Fetch Data
+        const response = await fetch(targetUrl, {
+            method: 'GET',
+            headers: {
+                'User-Agent': getRandomUserAgent(),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Referer': 'https://snapdownloader.com/',
+            },
+        });
+
         if (!response.ok) {
-            const errorResponse: DownloadResponse = {
-                status: 'error',
-                message: `Failed to fetch Instagram page. Status: ${response.status}`
-            };
-            return res.status(response.status).json(errorResponse);
+            throw new Error(`Upstream provider returned status: ${response.status}`);
         }
 
         const html = await response.text();
 
-        // 4. Regex to extract video URL (searching for 'video_url')
-        const videoRegex = /"video_url":"([^"]*?)"/g;
-        const videoMatch = videoRegex.exec(html);
+        // 6. Extraction Logic (Regex)
+        const videoRegex = /<a[^>]+href="([^"]+\.mp4[^"]*)"[^>]*>/i;
+        const thumbRegex = /<a[^>]+href="([^"]+\.jpg[^"]*)"[^>]*>/i;
+        const base64Regex = /<img[^>]+src="data:image\/jpg;base64,([^"]+)"/i;
 
-        // 5. Regex to extract thumbnail URL (searching for 'og:image')
-        const thumbRegex = /<meta property="og:image" content="([^"]*?)"/i;
-        const thumbMatch = thumbRegex.exec(html);
-        
-        // 6. Regex to extract thumbnail base64 (for better preview, if available)
-        // This is a common pattern, but may require adjustments based on actual IG source
-        const base64Regex = /"base64":"([^"]*?)"/g;
-        const base64Match = base64Regex.exec(html);
+        const videoMatch = html.match(videoRegex);
+        const thumbMatch = html.match(thumbRegex);
+        const base64Match = html.match(base64Regex);
 
-        if (!videoMatch || videoMatch.length < 2) {
-            const errorResponse: DownloadResponse = {
+        if (!videoMatch || !videoMatch[1]) {
+            applyCorsHeaders(res); 
+            return res.status(422).json({
                 status: 'error',
-                message: 'Video URL not found in the page source. This reel may be private or protected.'
-            };
-            return res.status(404).json(errorResponse);
+                message: 'Could not extract video URL. The content might be private or the provider has changed.',
+            });
         }
 
-        // 7. Decode HTML Entities
-        // The URL is usually escaped, use 'he' to decode
-        const cleanVideoUrl = he.decode(videoMatch[1]);
-        const cleanThumbUrl = thumbMatch && thumbMatch[1] ? he.decode(thumbMatch[1]) : null;
-        const cleanBase64 = base64Match && base64Match[1] 
-            ? `data:image/jpg;base64,${base64Match[1]}` 
+        // 7. Decode Entities
+        const cleanVideoUrl = decodeHtml(videoMatch[1]);
+        const cleanThumbUrl = thumbMatch && thumbMatch[1] ? decodeHtml(thumbMatch[1]) : null;
+        const cleanBase64 = base64Match && base64Match[1]
+            ? `data:image/jpg;base64,${base64Match[1]}`
             : null;
 
-
-        // 8. Construct the final success response
-        const successResponse: DownloadResponse = {
+        // 8. Construct Response
+        const apiResponse: DownloadResponse = {
             status: 'success',
             data: {
                 video_url: cleanVideoUrl,
                 thumbnail_url: cleanThumbUrl,
                 thumbnail_base64: cleanBase64,
                 original_url: url,
-                metadata: DEVELOPER_METADATA // Inject the hardcoded metadata
+                metadata: DEVELOPER_METADATA // <--- INJECT METADATA HERE
             }
         };
 
-        // 9. Send the JSON response
-        return res.status(200).json(successResponse);
+        // 9. Send Response with Cache Headers and CORS
+        res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=600');
+        applyCorsHeaders(res); 
+        
+        return res.status(200).json(apiResponse);
 
-    } catch (e) {
-        console.error('API Error:', e);
-        const errorResponse: DownloadResponse = {
+    } catch (error: any) {
+        console.error('Proxy Error:', error);
+
+        applyCorsHeaders(res); 
+        return res.status(500).json({
             status: 'error',
-            message: 'An internal error occurred while processing the request.'
-        };
-        return res.status(500).json(errorResponse);
+            message: 'Internal Server Error',
+            debug: error.message
+        });
     }
 }

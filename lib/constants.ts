@@ -8,3 +8,11 @@ export const USER_AGENTS = [
 export const getRandomUserAgent = () => {
   return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
 };
+
+// --- DEVELOPER METADATA ---
+export const DEVELOPER_METADATA = {
+    author: "m2hgamerz",
+    telegram_channel: "@YourTelegramChannel", // <-- Update this
+    developer_domain: "https://yourdomain.com", // <-- Update this
+    contact_number: "+91-9876543210" // <-- Update this
+};
