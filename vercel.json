@@ -1,23 +1,11 @@
 {
+  "outputDirectory": "public", 
+  
   "builds": [
     {
       "src": "api/download.ts", 
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 10,
-        "memory": 1024
-      }
-    }
-  ],
-  
-  "rewrites": [
-    {
-      "source": "/api/download(.*)",
-      "destination": "/api/download.ts" 
-    },
-    {
-      "source": "/public/index(.*)",
-      "destination": "/public/index.html" 
+      "use": "@vercel/node"
     }
   ]
+  
 }
