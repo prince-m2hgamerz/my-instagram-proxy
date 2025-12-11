@@ -2,7 +2,7 @@
   "name": "ig-proxy-api",
   "version": "1.0.0",
   "scripts": {
-    "build": "npx tsc", 
+    "build": "npm install && npx tsc",
     "dev": "vercel dev"
   },
   "dependencies": {
