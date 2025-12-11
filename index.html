@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Download Proxy API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 40px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #38a169; /* Green color for Vercel vibe */
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        code {
+            background: #eee;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .endpoint {
+            background: #d1e7dd;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Instagram Download Proxy API</h1>
+        <p>This is a Vercel Serverless Function deployed successfully!</p>
+        <p>This project provides an API endpoint to fetch data from an Instagram public post (Reels, Videos, or Posts).</p>
+
+        <h2>API Endpoint</h2>
+        <div class="endpoint">
+            <code>
+                /api/download
+            </code>
+        </div>
+
+        <h2>Usage Example (GET Request)</h2>
+        <p>The API requires one query parameter: <code>url</code>.</p>
+        <p><strong>Note:</strong> The Instagram URL MUST be URL-encoded before being sent in the query string.</p>
+        <div class="endpoint">
+            <code>
+                https://instagram-download-sigma.vercel.app/api/download?url=https%3A%2F%2Fwww.instagram.com%2Freel%2FDQ77RWPk8Yh%2F
+            </code>
+        </div>
+
+        <h2>Status</h2>
+        <p>The root path (`/`) now successfully serves this static HTML file. The Serverless Function at <code>/api/download</code> is fully operational.</p>
+        
+        <p>Thank you for using this API!</p>
+    </div>
+</body>
+</html>
