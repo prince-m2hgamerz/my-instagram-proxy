@@ -1,11 +1,15 @@
-{
-  "outputDirectory": "public", 
-  
+{  
   "builds": [
     {
       "src": "api/download.ts", 
       "use": "@vercel/node"
     }
-  ]
+  ],
   
+  "rewrites": [
+    {
+      "source": "/api/download(.*)",
+      "destination": "/api/download.ts" 
+    }
+  ]
 }

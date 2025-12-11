@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
+    "postbuild": "copyfiles index.html .vercel/output/static",
     "dev": "vercel dev"
   },
   "dependencies": {
@@ -11,7 +12,8 @@
   "devDependencies": {
     "@types/he": "^1.2.3",
     "@types/node": "^20.0.0",
-    "@vercel/node": "^2.3.0",
+    "@vercel/node": "^3.0.0",
+    "copyfiles": "^2.4.1",
     "typescript": "^5.0.0"
   },
   "keywords": [],
