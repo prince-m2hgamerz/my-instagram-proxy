@@ -1,7 +1,7 @@
 {
   "builds": [
     {
-      "src": "api/download.ts",
+      "src": "api/download.ts", 
       "use": "@vercel/node",
       "config": {
         "maxDuration": 10,
@@ -11,6 +11,10 @@
   ],
   
   "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
     {
       "source": "/api/download(.*)",
       "destination": "/api/download.ts" 
