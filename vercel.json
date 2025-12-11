@@ -3,7 +3,6 @@
     {
       "src": "api/**/*.ts",
       "use": "@vercel/node",
-      
       "config": {
         "maxDuration": 10,
         "memory": 1024
@@ -14,7 +13,7 @@
   "rewrites": [
     {
       "source": "/api/download(.*)",
-      "destination": "/api/download"
+      "destination": "/api/download.ts"
     }
   ]
 }
