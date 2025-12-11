@@ -16,8 +16,8 @@
       "destination": "/api/download.ts" 
     },
     {
-      "source": "/",
-      "destination": "/index.html" 
+      "source": "/public/index(.*)",
+      "destination": "/public/index.html" 
     }
   ]
 }
