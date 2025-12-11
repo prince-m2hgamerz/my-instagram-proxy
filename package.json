@@ -1,0 +1,25 @@
+{
+  "name": "ig-proxy-api",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "he": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/he": "^1.2.3",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "keywords": [],
+  "author": "m2hgamerz",
+  "license": "ISC",
+  "type": "commonjs"
+}
